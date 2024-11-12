@@ -8,7 +8,7 @@ app.use(express.json())
 app.use(cors())
 
 const routerApi = require('./api')
-app.use('/api', routerApi)
+app.use('/api/contacts', routerApi)
 
 app.use((_, res, __) => {
   res.status(404).json({ message: 'Use API on routes: /api/contacts' })
