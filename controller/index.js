@@ -27,7 +27,7 @@ async function addContact(req, res) {
     return res.status(400).json({ message: "Missing required field" });
   }
   try {
-    const newContact = new service.createContact({ name, email, phone });
+    const newContact = await service.createContact({ name, email, phone });
     await newContact.save();
     res.status(201).json(newContact);
   } catch (error) {
@@ -64,7 +64,7 @@ async function updateContact(req, res) {
 }
 
 async function updateStatusContact(req, res) {
-  const contactId = req.params;
+  const { id } = req.params;
   const { favorite } = req.body;
 
   if (favorite === undefined) {
@@ -72,7 +72,7 @@ async function updateStatusContact(req, res) {
   }
 
   try {
-    const updatedContact = await service.updateContact(contactId, { favorite }, { new: true });
+    const updatedContact = await service.updateContact(id, { favorite }, { new: true });
     if (!updatedContact) {
       return res.status(404).json({ message: "Not found" });
     }

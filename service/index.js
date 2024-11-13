@@ -5,19 +5,19 @@ const getAllContacts = async () => {
 }
 
 const getContactById = (id) => {
-    return Contact.findOne({ _id: id })
+    return Contact.findOne({ id })
 }
 
 const createContact = ({ name, email, phone }) => {
-    return Contact.create({ name, email, phone })
+    return Contact.create({ name, email, phone})
 }
 
 const updateContact = (id, fields) => {
-    return Contact.findByIdAndUpdate({ _id: id }, fields, { new: true })
+    return Contact.findByIdAndUpdate(id, fields, { new: true })
 }
 
 const removeContact = (id) => {
-    return Contact.findByIdAndDelete({ _id: id })
+    return Contact.findByIdAndDelete(id)
 }
 
 module.exports = {
