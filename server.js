@@ -1,5 +1,26 @@
-const app = require('./app')
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./service/db')
+require('dotenv').config();
 
-app.listen(3000, () => {
-  console.log("Server running. Use our API on port: 3000")
+const app = express()
+app.use(express.json())
+app.use(cors())
+
+const routerApi = require('./api')
+app.use('/api/contacts', routerApi)
+
+app.use((_, res, __) => {
+  res.status(404).json({ message: 'Use API on routes: /api/contacts' })
+})
+
+app.use((err, _, res, __) => {
+  console.log(err.stack)
+  res.status(500).json({ message: err.message })
+})
+
+connectDB();
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Server running on port: ${PORT}`);
 })
