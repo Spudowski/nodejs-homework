@@ -7,7 +7,7 @@ const {
     removeContact,
     updateContact,
     updateStatusContact
-} = require('../controller/index')
+} = require('../controller/cont')
 
 router.get('/', listContacts)
 
