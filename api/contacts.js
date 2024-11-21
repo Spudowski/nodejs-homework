@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const authMiddleware = require('../controller/contactsController')
 const {
     listContacts,
     getContactById,
@@ -8,6 +9,8 @@ const {
     updateContact,
     updateStatusContact
 } = require('../controller/cont')
+
+router.use(authMiddleware)
 
 router.get('/', listContacts)
 

@@ -1,16 +1,15 @@
 const express = require('express')
 const router = express.Router()
 const {
-    auth,
     loginUser,
     registerUser,
     logoutUser,
     getCurrentUser
 } = require('../controller/userCont')
 
-router.get('/logout', auth, logoutUser)
+router.get('/logout', logoutUser)
 
-router.get('/current', auth, getCurrentUser)
+router.get('/current', getCurrentUser)
 
 router.post('/login', loginUser)
 
