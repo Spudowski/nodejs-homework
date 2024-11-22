@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const authMiddleware = require('../controller/contactsController')
+const authMiddleware = require('../middleware/authMiddleware')
+const validateContacts = require('../middleware/validateContacts')
 const {
     listContacts,
     getContactById,
@@ -16,7 +17,7 @@ router.get('/', listContacts)
 
 router.get('/:id', getContactById)
 
-router.post('/', addContact)
+router.post('/', validateContacts, addContact)
 
 router.put('/:id', updateContact)
 

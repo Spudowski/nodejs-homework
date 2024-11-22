@@ -6,10 +6,11 @@ const {
     logoutUser,
     getCurrentUser
 } = require('../controller/userCont')
+const authMiddleware = require('../middleware/authMiddleware')
 
 router.get('/logout', logoutUser)
 
-router.get('/current', getCurrentUser)
+router.get('/current', authMiddleware, getCurrentUser)
 
 router.post('/login', loginUser)
 

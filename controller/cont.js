@@ -1,21 +1,8 @@
 const service = require('../service')
-const Joi = require('joi')
-
-const contactValidationSchema = Joi.object({
-  name: Joi.string().required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().required(),
-  favorite: Joi.boolean().optional()
-})
 
 async function listContacts(req, res) {
-  const { error } = contactValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
   try {
-    const contacts = await service.getAllContacts();
+    const contacts = await service.getAllContacts(req.user._id);
     res.status(200).json(contacts);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -23,11 +10,6 @@ async function listContacts(req, res) {
 }
 
 async function getContactById(req, res) {
-  const { error } = contactValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
   try {
     const contact = await service.getContactById(req.params.id);
     if (!contact) {
@@ -40,11 +22,6 @@ async function getContactById(req, res) {
 }
 
 async function addContact(req, res) {
-  const { error } = contactValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
   const { name, email, phone, favorite = false } = req.body;
   if (!name || !email || !phone) {
     return res.status(400).json({ message: "Missing required field" });
@@ -59,12 +36,7 @@ async function addContact(req, res) {
 }
 
 async function removeContact(req, res) {
-  const { error } = contactValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
-    const { id } = req.params
+  const { id } = req.params
   try {
     const contact = await service.removeContact(id);
     if (!contact) {
@@ -77,11 +49,6 @@ async function removeContact(req, res) {
 }
 
 async function updateContact(req, res) {
-  const { error } = contactValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
   const { id } = req.params;
   const fields = req.body;
 
@@ -97,11 +64,6 @@ async function updateContact(req, res) {
 }
 
 async function updateStatusContact(req, res) {
-  const { error } = contactValidationSchema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-  
   const { id } = req.params;
   const { favorite } = req.body;
 

@@ -79,9 +79,9 @@ async function logoutUser(req, res) {
 }
 
 async function getCurrentUser(req, res) {
-    const { email, subscription } = req.user
+    const { _id, email, subscription } = req.user
 
-    res.status(200).json({ email, subscription })
+    res.status(200).json({ id:_id, email, subscription })
 }
 
 
