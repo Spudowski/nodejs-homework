@@ -8,7 +8,7 @@ const {
 } = require('../controller/userCont')
 const authMiddleware = require('../middleware/authMiddleware')
 
-router.get('/logout', logoutUser)
+router.get('/logout', authMiddleware, logoutUser)
 
 router.get('/current', authMiddleware, getCurrentUser)
 
