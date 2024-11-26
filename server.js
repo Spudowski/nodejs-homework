@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./service/db')
+const path = require('path')
 require('dotenv').config();
 
 const contactsRouter = require('./api/contacts')
@@ -12,6 +13,7 @@ app.use(cors())
 
 app.use('/api/contacts', contactsRouter)
 app.use('/api/users', usersRouter)
+app.use('/api/users/avatars', express.static(path.join(__dirname, 'public/avatars')));
 
 app.use((_, res, __) => {
   res.status(404).json({

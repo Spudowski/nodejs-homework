@@ -1,7 +1,12 @@
 const jwt = require('jsonwebtoken')
+const fs = require('fs/promises')
+const path = require('path')
+const { Jimp } = require('jimp')
 const Joi = require('joi')
 const User = require('../service/schema/user')
+const gravatar = require('gravatar')
 const bcrypt = require('bcryptjs')
+const avatarsDir = path.join(__dirname, '../public/avatars')
 
 const userValidationSchema = Joi.object({
     email: Joi.string().email().required(),
@@ -56,16 +61,19 @@ async function registerUser(req, res) {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  const avatarURL = gravatar.url(email, { s: '250', d: 'identicon' }, true);
 
   const newUser = await User.create({
     email,
     password: hashedPassword,
+    avatarURL,
   });
 
   res.status(201).json({
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -84,10 +92,39 @@ async function getCurrentUser(req, res) {
     res.status(200).json({ id:_id, email, subscription })
 }
 
+async function updateAvatar(req, res) {
+  
+  if (!req.file) {
+  return res.status(400).json({ message: 'No file uploaded' });
+  }
+  
+  const { path: temporaryPath, originalname } = req.file;
+  const { _id } = req.user;
+
+  try {
+    const avatarName = `${_id}-${originalname}`;
+    const resultPath = path.join(avatarsDir, avatarName);
+
+    const image = await Jimp.read(temporaryPath);
+    await image.resize(250, 250).write(resultPath);
+
+    await fs.unlink(temporaryPath);
+
+    const avatarURL = `/avatars/${avatarName}`;
+    await User.findByIdAndUpdate(_id, { avatarURL });
+
+    res.status(200).json({ avatarURL });
+  } catch (error) {
+    await fs.unlink(temporaryPath);
+    res.status(500).json({ message: error.message });
+  }
+}
+
 
 module.exports = {
     loginUser,
     registerUser,
     logoutUser,
     getCurrentUser,
+    updateAvatar,
 }
