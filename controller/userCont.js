@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const fs = require('fs/promises')
 const path = require('path')
-const { Jimp } = require('jimp')
+const Jimp = require("jimp")
 const Joi = require('joi')
 const User = require('../service/schema/user')
 const gravatar = require('gravatar')
