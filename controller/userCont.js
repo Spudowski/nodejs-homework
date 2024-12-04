@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken')
+const { v4: uuidv4 } = require('uuid')
+const mail = require('../utils/email')
 const fs = require('fs/promises')
 const path = require('path')
 const Jimp = require("jimp")
@@ -61,13 +63,29 @@ async function registerUser(req, res) {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  const verificationToken = uuidv4()
   const avatarURL = gravatar.url(email, { s: '250', d: 'identicon' }, true);
 
   const newUser = await User.create({
     email,
     password: hashedPassword,
     avatarURL,
+    verificationToken,
   });
+
+  console.log('Generated veri toekn:', verificationToken)
+
+  const verificationRoute = `/auth/verify/${verificationToken}`
+  const verificationLink = `${process.env.BASE_URL}${verificationRoute}`
+
+  await mail.sendMail({
+    from: 'Adrian D. <noreply@fakecompany.com>',
+    to: [email],
+    subject: 'Email Verification',
+    html: `
+    <p>Please verify your email by clicking the link below:</p>
+    <a href="${verificationLink}">${verificationLink}</a>`,
+  })
 
   res.status(201).json({
     user: {
@@ -120,6 +138,52 @@ async function updateAvatar(req, res) {
   }
 }
 
+async function verifyUser(req, res) {
+  const { verificationToken } = req.params
+
+  const user = await User.findOne({ verificationToken })
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' })
+  }
+
+  user.verify = true
+  await user.save()
+
+  res.status(200).json({ message: 'Verification successful' })
+}
+
+async function resendVeriEmail(req, res) {
+  const { email } = req.body
+  const { verificationToken } = req.params
+
+  if (!email) {
+    return res.status(400).json({ message: 'Missing required field email' })
+  }
+
+  const user = await User.findOne({ email })
+  if (!user) {
+    return res.status(404).json({ message: "User not found" })
+  }
+
+  if (user.verify) {
+    return res.status(400).json({ message: 'Verification has already been passed' })
+  }
+
+  const verificationRoute = `/auth/verify/${verificationToken}`
+  const verificationLink = `${process.env.BASE_URL}${verificationRoute}`
+
+  await mail.sendMail({
+    from: 'Adrian D. <noreply@fakecompany.com>',
+    to: [email],
+    subject: 'Email Verification',
+    html: `
+    <p>Please verify your email by clicking the link below:</p>
+    <a href="${verificationLink}">${verificationLink}</a>`,
+  })
+
+  res.status(200).json({ message: 'Verification email sent' })
+}
+
 
 module.exports = {
     loginUser,
@@ -127,4 +191,6 @@ module.exports = {
     logoutUser,
     getCurrentUser,
     updateAvatar,
+    verifyUser,
+    resendVeriEmail,
 }
