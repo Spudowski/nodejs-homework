@@ -28,6 +28,10 @@ async function loginUser(req, res) {
     return res.status(401).json({ message: 'Email or password is incorrect' });
   }
 
+  if (!user.verify) {
+    return res.status(401).json({ message: 'Email is not verified' })
+  }
+
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     return res.status(401).json({ message: 'Email or password is incorrect' });
@@ -146,6 +150,7 @@ async function verifyUser(req, res) {
     return res.status(404).json({ message: 'User not found' })
   }
 
+  user.verificationToken = null
   user.verify = true
   await user.save()
 
